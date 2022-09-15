@@ -1,0 +1,5 @@
+SiteName,EC_IpAddress,EC_Port,EC_UserName,EC_Password,EC_SummaryPath,HPRCC_IpAddress,HPRCC_Port,HPRCC_UserName,HPRCC_Password,HPRCC_SummaryPath
+Holbrook,166.152.83.1,57222,licor,licor,/home/licor/data/summaries,129.93.175.20,22,sftp_user,EvfL8XKtx7UuU7pF,/upload/Holbrook/
+HUC12,166.152.83.2,57222,licor,licor,/home/licor/data/summaries,129.93.175.20,22,sftp_user,EvfL8XKtx7UuU7pF,/upload/HUC12/
+Grant,162.212.117.234,7222,licor,licor,/home/licor/data/summaries,129.93.175.20,22,sftp_user,EvfL8XKtx7UuU7pF,/upload/GrantNE01/
+Sutherland,162.212.119.194,7222,licor,licor,/home/licor/data/summaries,129.93.175.20,22,sftp_user,EvfL8XKtx7UuU7pF,/upload/Sutherland/

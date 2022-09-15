@@ -58,13 +58,8 @@ namespace SftpSyncSummary
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Error: {0}", e);
+                    Console.WriteLine($"Error: {e.Message}");
                 }
-                return default;
-            }
-            List<SFTP_Connection> GetAllSFTPParameters(string SettingsPath)
-            {
-                return default;
             }
         }
 

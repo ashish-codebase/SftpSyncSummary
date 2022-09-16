@@ -9,13 +9,12 @@ namespace SftpSyncSummary
 {
     internal class Program
     {
-private static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            if(!File.Exists("EC_Summary_Sync_Settings.csv"))
+            if (!File.Exists("EC_Summary_Sync_Settings.csv"))
             {
                 CreateCSV();
             }
-            
 
             int daysToDownload = 1;
             if (args.Length > 0)
@@ -24,28 +23,24 @@ private static void Main(string[] args)
             }
             ConnectSFPT connectSFPT = new ConnectSFPT(daysToDownload);
 
-            List<ConnectSFPT.SFTP_Parameter> ConnectionList = connectSFPT.GetParameters("EC_Summary_Sync_Settings.csv");
-
-            foreach (var connection in ConnectionList)
+            foreach (var connection in connectSFPT.GetParameters("EC_Summary_Sync_Settings.csv"))
             {
                 Thread thread = new Thread(() =>
                 {
                     connectSFPT.RunSingleSync(connection);
                 });
                 thread.Start();
-
             }
         }
 
         private static void CreateCSV()
         {
             Assembly asm = Assembly.GetExecutingAssembly();
-            var resourceName = asm.GetManifestResourceNames().Single(str => str.EndsWith("EC_Summary_Sync_Settings.csv"));
-            using (Stream InStream = asm.GetManifestResourceStream(resourceName))
+            var resourceFullPath = asm.GetManifestResourceNames().Single(str => str.EndsWith("EC_Summary_Sync_Settings.csv"));
+            using (Stream InStream = asm.GetManifestResourceStream(resourceFullPath))
             {
-                StreamReader Reader = new StreamReader(InStream);
-                var fstream = new FileStream("EC_Summary_Sync_Settings.csv", FileMode.OpenOrCreate, FileAccess.ReadWrite);
-                InStream.CopyTo(fstream);
+                var fstream = new FileStream("EC_Summary_Sync_Settings.csv", FileMode.CreateNew, FileAccess.Write);
+                InStream?.CopyTo(fstream);
                 fstream.Close();
             }
         }

@@ -123,7 +123,7 @@ namespace SftpSyncSummary
             try
             {
                 // Setup session options
-                SessionOptions sessionOptions = new SessionOptions
+                var sessionOptions = new SessionOptions
                 {
                     Protocol = Protocol.Sftp,
                     HostName = sFTP_Parameter.HPRCC_IpAddress,
@@ -133,17 +133,25 @@ namespace SftpSyncSummary
                     SshHostKeyPolicy = SshHostKeyPolicy.GiveUpSecurityAndAcceptAny
                 };
 
-                using (Session session = new Session())
+                using (var session = new Session())
                 {
                     // Connect
                     session.Open(sessionOptions);
 
                     // Upload files
-                    TransferOptions transferOptions = new TransferOptions();
-                    transferOptions.TransferMode = TransferMode.Binary;
-                    foreach (string summary_file in SummaryFiles)
+                    var transferOptions = new TransferOptions
                     {
-                        session.PutFiles(summary_file, sFTP_Parameter.HPRCC_SummaryPath, false, transferOptions);
+                        TransferMode = TransferMode.Binary,
+                        PreserveTimestamp = true
+                    };
+                    foreach (var summaryFile in SummaryFiles)
+                    {
+                        var hccFilePath = sFTP_Parameter.HPRCC_SummaryPath + summaryFile;
+                        var localFileInfo = new FileInfo(summaryFile);
+                        if (!session.FileExists(hccFilePath) || session.GetFileInfo(hccFilePath).Length < localFileInfo.Length)
+                        {
+                            session.PutFiles(summaryFile, hccFilePath, true, transferOptions);
+                        }
                     }
                 }
             }

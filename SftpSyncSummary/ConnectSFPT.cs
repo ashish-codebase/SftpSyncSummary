@@ -97,7 +97,7 @@ namespace SftpSyncSummary
                     var directoryInfo = session.ListDirectory("/home/licor/data/summaries/");
                     foreach (RemoteFileInfo file in directoryInfo.Files)
                     {
-                        if (file.Length > 0)
+                        if (file.Length > 0 && file.LastWriteTime.Date<DateTime.Today)
                         {
                             remoteFileInfo.Add(file);
                         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using WinSCP;
@@ -34,11 +35,11 @@ namespace SftpSyncSummary
         public List<SFTP_Parameter> GetParameters(string CSV_Path)
         {
             List<SFTP_Parameter> parameters = new List<SFTP_Parameter>();
-            var all_lines = File.ReadAllLines(CSV_Path);
+            string[] all_lines = File.ReadAllLines(CSV_Path);
             SFTP_Parameter sFTP_Parameter = new SFTP_Parameter();
             for (int i = 1; i < all_lines.Length; i++)
             {
-                var parameter_list = all_lines[i].Split(',');
+                string[] parameter_list = all_lines[i].Split(',');
                 sFTP_Parameter.Site_Name = parameter_list[0];
                 sFTP_Parameter.EC_IpAddress = parameter_list[1];
                 sFTP_Parameter.EC_Port = Convert.ToInt32(parameter_list[2]);
@@ -93,7 +94,7 @@ namespace SftpSyncSummary
                     TransferOptions transferOptions = new TransferOptions();
                     transferOptions.TransferMode = TransferMode.Binary;
                     List<RemoteFileInfo> remoteFileInfo = new List<RemoteFileInfo>();
-                    var directoryInfo = session.ListDirectory("/home/licor/data/summaries/");
+                    RemoteDirectoryInfo directoryInfo = session.ListDirectory("/home/licor/data/summaries/");
                     foreach (RemoteFileInfo file in directoryInfo.Files)
                     {
                         if (file.Length > 0 && file.LastWriteTime.Date < DateTime.Today)
@@ -107,13 +108,14 @@ namespace SftpSyncSummary
                     {
                         session.GetFiles(remoteFileInfo[i].FullName, ".\\", false, null);
                         local_summary_files.Add(remoteFileInfo[i].Name);
+                        Debug.WriteLine($"Downloading locally {remoteFileInfo[i].Name}");
                     }
                 }
                 return local_summary_files;
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error: {e.Message}");
+                Debug.WriteLine($"Error: {e.Message}");
                 return local_summary_files;
             }
         }
@@ -123,7 +125,7 @@ namespace SftpSyncSummary
             try
             {
                 // Setup session options
-                var sessionOptions = new SessionOptions
+                SessionOptions sessionOptions = new SessionOptions
                 {
                     Protocol = Protocol.Sftp,
                     HostName = sFTP_Parameter.HPRCC_IpAddress,
@@ -133,33 +135,35 @@ namespace SftpSyncSummary
                     SshHostKeyPolicy = SshHostKeyPolicy.GiveUpSecurityAndAcceptAny
                 };
 
-                using (var session = new Session())
+                using (Session session = new Session())
                 {
                     // Connect
                     session.Open(sessionOptions);
 
                     // Upload files
-                    var transferOptions = new TransferOptions
+                    TransferOptions transferOptions = new TransferOptions
                     {
                         TransferMode = TransferMode.Binary,
                         PreserveTimestamp = true
                     };
-                    foreach (var summaryFile in SummaryFiles)
+                    foreach (string summaryFile in SummaryFiles)
                     {
-                        var hccFilePath = sFTP_Parameter.HPRCC_SummaryPath + summaryFile;
-                        var localFileInfo = new FileInfo(summaryFile);
+                        string hccFilePath = sFTP_Parameter.HPRCC_SummaryPath + summaryFile;
+                        FileInfo localFileInfo = new FileInfo(summaryFile);
                         if (!session.FileExists(hccFilePath) || session.GetFileInfo(hccFilePath).Length < localFileInfo.Length)
                         {
                             session.PutFiles(summaryFile, hccFilePath, true, transferOptions);
+                            Debug.WriteLine($"Uploading to HCC server {summaryFile}");
                         }
+                        Debug.WriteLine($"Identical file on HCC server {summaryFile}. No upload.");
                     }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine($"Error: {e.Message}");
+                Debug.WriteLine($"Error: {e.Message}");
             }
-            foreach (var file in SummaryFiles)
+            foreach (string file in SummaryFiles)
             {
                 File.Delete(file);
             }

@@ -23,7 +23,7 @@ namespace SftpSyncSummary
             }
             ConnectSFPT connectSFPT = new ConnectSFPT(daysToDownload);
 
-            foreach (var connection in connectSFPT.GetParameters("EC_Summary_Sync_Settings.csv"))
+            foreach (ConnectSFPT.SFTP_Parameter connection in connectSFPT.GetParameters("EC_Summary_Sync_Settings.csv"))
             {
                 Thread thread = new Thread(() =>
                 {
@@ -36,10 +36,10 @@ namespace SftpSyncSummary
         private static void CreateCSV()
         {
             Assembly asm = Assembly.GetExecutingAssembly();
-            var resourceFullPath = asm.GetManifestResourceNames().Single(str => str.EndsWith("EC_Summary_Sync_Settings.csv"));
+            string resourceFullPath = asm.GetManifestResourceNames().Single(str => str.EndsWith("EC_Summary_Sync_Settings.csv"));
             using (Stream InStream = asm.GetManifestResourceStream(resourceFullPath))
             {
-                var fstream = new FileStream("EC_Summary_Sync_Settings.csv", FileMode.CreateNew, FileAccess.Write);
+                FileStream fstream = new FileStream("EC_Summary_Sync_Settings.csv", FileMode.CreateNew, FileAccess.Write);
                 InStream?.CopyTo(fstream);
                 fstream.Close();
             }

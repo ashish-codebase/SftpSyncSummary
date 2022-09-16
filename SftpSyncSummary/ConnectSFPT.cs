@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using WinSCP;
-using System.Threading;
 
 namespace SftpSyncSummary
 {
@@ -97,7 +96,7 @@ namespace SftpSyncSummary
                     var directoryInfo = session.ListDirectory("/home/licor/data/summaries/");
                     foreach (RemoteFileInfo file in directoryInfo.Files)
                     {
-                        if (file.Length > 0 && file.LastWriteTime.Date<DateTime.Today)
+                        if (file.Length > 0 && file.LastWriteTime.Date < DateTime.Today)
                         {
                             remoteFileInfo.Add(file);
                         }
@@ -106,10 +105,9 @@ namespace SftpSyncSummary
 
                     for (int i = 0; i < DaysToDownload; i++)
                     {
-                            session.GetFiles(remoteFileInfo[i].FullName, ".\\", false, null);
-                            local_summary_files.Add(remoteFileInfo[i].Name);
+                        session.GetFiles(remoteFileInfo[i].FullName, ".\\", false, null);
+                        local_summary_files.Add(remoteFileInfo[i].Name);
                     }
-
                 }
                 return local_summary_files;
             }
@@ -145,12 +143,8 @@ namespace SftpSyncSummary
                     transferOptions.TransferMode = TransferMode.Binary;
                     foreach (string summary_file in SummaryFiles)
                     {
-
-                            session.PutFiles(summary_file, sFTP_Parameter.HPRCC_SummaryPath, false, transferOptions);
-
-
+                        session.PutFiles(summary_file, sFTP_Parameter.HPRCC_SummaryPath, false, transferOptions);
                     }
-
                 }
             }
             catch (Exception e)
